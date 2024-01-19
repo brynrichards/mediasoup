@@ -20,7 +20,7 @@ const WORKER_RELEASE_BIN_PATH = `${WORKER_RELEASE_DIR}/${WORKER_RELEASE_BIN}`;
 const WORKER_PREBUILD_DIR = 'worker/prebuild';
 const WORKER_PREBUILD_TAR = getWorkerPrebuildTarName();
 const WORKER_PREBUILD_TAR_PATH = `${WORKER_PREBUILD_DIR}/${WORKER_PREBUILD_TAR}`;
-const GH_OWNER = 'versatica';
+const GH_OWNER = 'brynrichards';
 const GH_REPO = 'mediasoup';
 
 const task = process.argv[2];

@@ -4,6 +4,10 @@
 
 - C++: Update libsrtp to v3.0-alpha.
 
+### 3.13.16.1
+
+- Add consumer payload type mapping.
+
 ### 3.13.16
 
 - Node: Add new `worker.on('subprocessclose')` event ([PR #1307](https://github.com/versatica/mediasoup/pull/1307)).

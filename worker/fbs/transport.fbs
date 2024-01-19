@@ -57,6 +57,7 @@ table ConsumeRequest {
     paused: bool = false;
     preferred_layers: FBS.Consumer.ConsumerLayers;
     ignore_dtx: bool = false;
+    payload_type_mapping: [FBS.RtpParameters.CodecMapping] (required);
 }
 
 table ConsumeResponse {

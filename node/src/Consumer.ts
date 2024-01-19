@@ -87,6 +87,14 @@ export type ConsumerOptions<ConsumerAppData extends AppData = AppData> = {
 	pipe?: boolean;
 
 	/**
+	 * Provides the ability to remap payload type.
+	 */
+	payloadTypeMapping?: {
+		payloadType: number;
+		mappedPayloadType: number;
+	}[];
+
+	/**
 	 * Custom application data.
 	 */
 	appData?: ConsumerAppData;

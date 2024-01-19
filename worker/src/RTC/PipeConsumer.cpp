@@ -290,6 +290,18 @@ namespace RTC
 		packet->SetSsrc(ssrc);
 		packet->SetSequenceNumber(seq);
 
+		// Mangle the payload type.
+		{
+			auto it = this->payloadMapping.find(payloadType);
+
+			if (it != this->payloadMapping.end())
+			{
+				const uint8_t mappedPayloadType = it->second;
+
+				packet->SetPayloadType(mappedPayloadType);
+			}
+		}
+
 #ifdef MS_RTC_LOGGER_RTP
 		packet->logger.sendRtpTimestamp = packet->GetTimestamp();
 		packet->logger.sendSeqNumber    = seq;
@@ -333,6 +345,7 @@ namespace RTC
 		// Restore packet fields.
 		packet->SetSsrc(origSsrc);
 		packet->SetSequenceNumber(origSeq);
+		packet->SetPayloadType(payloadType);
 	}
 
 	bool PipeConsumer::GetRtcp(RTC::RTCP::CompoundPacket* packet, uint64_t nowMs)

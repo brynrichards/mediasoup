@@ -10,7 +10,7 @@ use crate::data_structures::{
     ListenInfo, SctpState, TransportTuple,
 };
 use crate::direct_transport::DirectTransportOptions;
-use crate::ortc::RtpMapping;
+use crate::ortc::{RtpMapping, RtpMappingCodec};
 use crate::pipe_transport::PipeTransportOptions;
 use crate::plain_transport::PlainTransportOptions;
 use crate::producer::{ProducerId, ProducerTraceEventType, ProducerType};
@@ -33,7 +33,7 @@ use crate::worker::{ChannelMessageHandlers, LibUringDump, WorkerDump, WorkerUpda
 use mediasoup_sys::fbs::{
     active_speaker_observer, audio_level_observer, consumer, data_consumer, data_producer,
     direct_transport, message, notification, pipe_transport, plain_transport, producer, request,
-    response, router, rtp_observer, transport, web_rtc_server, web_rtc_transport, worker,
+    response, router, rtp_observer, rtp_parameters, transport, web_rtc_server, web_rtc_transport, worker,
 };
 use parking_lot::Mutex;
 use planus::Builder;
@@ -1784,6 +1784,7 @@ pub(crate) struct TransportConsumeRequest {
     pub(crate) paused: bool,
     pub(crate) preferred_layers: Option<ConsumerLayers>,
     pub(crate) ignore_dtx: bool,
+    pub(crate) payload_type_mapping: Vec<RtpMappingCodec>,
 }
 
 #[derive(Debug)]
@@ -1815,6 +1816,13 @@ impl Request for TransportConsumeRequest {
             self.paused,
             self.preferred_layers.map(ConsumerLayers::to_fbs),
             self.ignore_dtx,
+            self.payload_type_mapping
+                .iter()
+                .map(|mapping| rtp_parameters::CodecMapping {
+                    payload_type: mapping.payload_type,
+                    mapped_payload_type: mapping.mapped_payload_type,
+                })
+                .collect::<Vec<rtp_parameters::CodecMapping>>(),
         );
         let request_body = request::Body::create_transport_consume_request(&mut builder, data);
         let request = request::Request::create(

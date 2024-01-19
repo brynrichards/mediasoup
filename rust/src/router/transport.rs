@@ -595,6 +595,7 @@ pub(super) trait TransportImpl: TransportGeneric {
             ignore_dtx,
             pipe,
             app_data,
+            payload_type_mapping,
         } = consumer_options;
         ortc::validate_rtp_capabilities(&rtp_capabilities)
             .map_err(ConsumeError::FailedRtpCapabilitiesValidation)?;
@@ -661,6 +662,7 @@ pub(super) trait TransportImpl: TransportGeneric {
                     paused,
                     preferred_layers,
                     ignore_dtx,
+                    payload_type_mapping,
                 },
             )
             .await

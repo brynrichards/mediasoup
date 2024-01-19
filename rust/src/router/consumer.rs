@@ -11,6 +11,7 @@ use crate::producer::{Producer, ProducerId, ProducerStat, ProducerType, WeakProd
 use crate::rtp_parameters::{
     MediaKind, MimeType, RtpCapabilities, RtpEncodingParameters, RtpParameters,
 };
+use crate::ortc::RtpMappingCodec;
 use crate::transport::Transport;
 use crate::uuid_based_wrapper_type;
 use crate::worker::{Channel, NotificationParseError, RequestError, SubscriptionHandler};
@@ -121,6 +122,8 @@ pub struct ConsumerOptions {
     pub pipe: bool,
     /// Custom application data.
     pub app_data: AppData,
+    /// Provides the ability to remap payload type.
+    pub payload_type_mapping: Vec<RtpMappingCodec>,
 }
 
 impl ConsumerOptions {
@@ -137,6 +140,7 @@ impl ConsumerOptions {
             pipe: false,
             mid: None,
             app_data: AppData::default(),
+            payload_type_mapping: vec![],
         }
     }
 }

@@ -111,6 +111,11 @@ namespace RTC
 			}
 		}
 
+		for (const auto& item : *data->payloadTypeMapping())
+		{
+			this->payloadMapping[item->payloadType()] = item->mappedPayloadType();
+		}
+
 		// paused is set to false by default.
 		this->paused = data->paused();
 

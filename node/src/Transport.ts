@@ -827,6 +827,7 @@ export class Transport<
 		ignoreDtx = false,
 		enableRtx,
 		pipe = false,
+		payloadTypeMapping = [],
 		appData,
 	}: ConsumerOptions<ConsumerAppData>): Promise<Consumer<ConsumerAppData>> {
 		logger.debug('consume()');
@@ -892,6 +893,7 @@ export class Transport<
 			preferredLayers,
 			ignoreDtx,
 			pipe,
+			payloadTypeMapping,
 		});
 
 		const response = await this.channel.request(
@@ -1549,6 +1551,7 @@ function createConsumeRequest({
 	preferredLayers,
 	ignoreDtx,
 	pipe,
+	payloadTypeMapping,
 }: {
 	builder: flatbuffers.Builder;
 	producer: Producer;
@@ -1558,6 +1561,10 @@ function createConsumeRequest({
 	preferredLayers?: ConsumerLayers;
 	ignoreDtx?: boolean;
 	pipe: boolean;
+	payloadTypeMapping: {
+		payloadType: number;
+		mappedPayloadType: number;
+	}[];
 }): number {
 	const rtpParametersOffset = serializeRtpParameters(builder, rtpParameters);
 	const consumerIdOffset = builder.createString(consumerId);
@@ -1590,7 +1597,17 @@ function createConsumeRequest({
 			FbsConsumer.ConsumerLayers.endConsumerLayers(builder);
 	}
 
+	const codecs = payloadTypeMapping.map(p =>
+		FbsRtpParameters.CodecMapping.createCodecMapping(
+			builder,
+			p.payloadType,
+			p.mappedPayloadType,
+		),
+	);
+
 	const ConsumeRequest = FbsTransport.ConsumeRequest;
+	const payloadTypeMappingOffset =
+		ConsumeRequest.createPayloadTypeMappingVector(builder, codecs);
 
 	// Create Consume Request.
 	ConsumeRequest.startConsumeRequest(builder);
@@ -1620,6 +1637,8 @@ function createConsumeRequest({
 	}
 
 	ConsumeRequest.addIgnoreDtx(builder, Boolean(ignoreDtx));
+
+	ConsumeRequest.addPayloadTypeMapping(builder, payloadTypeMappingOffset);
 
 	return ConsumeRequest.endConsumeRequest(builder);
 }

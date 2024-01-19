@@ -669,7 +669,9 @@ export function getConsumerRtpParameters({
 
 	if (!pipe) {
 		const consumerEncoding: RtpEncodingParameters = {
-			ssrc: utils.generateRandomNumber(),
+			ssrc:
+				consumableRtpParameters.encodings?.[0].ssrc ||
+				utils.generateRandomNumber(),
 		};
 
 		if (rtxSupported) {

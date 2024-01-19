@@ -122,6 +122,14 @@ export type PipeConsumerOptions<ConsumerAppData> = {
 	producerId: string;
 
 	/**
+	 * Provides the ability to remap payload type.
+	 */
+	payloadTypeMapping?: {
+		payloadType: number;
+		mappedPayloadType: number;
+	}[];
+
+	/**
 	 * Custom application data.
 	 */
 	appData?: ConsumerAppData;
@@ -323,6 +331,7 @@ export class PipeTransport<
 	async consume<ConsumerAppData extends AppData = AppData>({
 		producerId,
 		appData,
+		payloadTypeMapping = [],
 	}: PipeConsumerOptions<ConsumerAppData>): Promise<Consumer<ConsumerAppData>> {
 		logger.debug('consume()');
 
@@ -351,6 +360,7 @@ export class PipeTransport<
 			consumerId,
 			producer,
 			rtpParameters,
+			payloadTypeMapping,
 		});
 
 		const response = await this.channel.request(
@@ -486,11 +496,16 @@ function createConsumeRequest({
 	consumerId,
 	producer,
 	rtpParameters,
+	payloadTypeMapping,
 }: {
 	builder: flatbuffers.Builder;
 	consumerId: string;
 	producer: Producer;
 	rtpParameters: RtpParameters;
+	payloadTypeMapping: {
+		payloadType: number;
+		mappedPayloadType: number;
+	}[];
 }): number {
 	// Build the request.
 	const producerIdOffset = builder.createString(producer.id);
@@ -505,7 +520,17 @@ function createConsumeRequest({
 		);
 	}
 
+	const codecs = payloadTypeMapping.map(p =>
+		FbsRtpParameters.CodecMapping.createCodecMapping(
+			builder,
+			p.payloadType,
+			p.mappedPayloadType,
+		),
+	);
+
 	const ConsumeRequest = FbsTransport.ConsumeRequest;
+	const payloadTypeMappingOffset =
+		ConsumeRequest.createPayloadTypeMappingVector(builder, codecs);
 
 	// Create Consume Request.
 	ConsumeRequest.startConsumeRequest(builder);
@@ -524,6 +549,8 @@ function createConsumeRequest({
 			consumableRtpEncodingsOffset,
 		);
 	}
+
+	ConsumeRequest.addPayloadTypeMapping(builder, payloadTypeMappingOffset);
 
 	return ConsumeRequest.endConsumeRequest(builder);
 }

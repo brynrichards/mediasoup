@@ -213,8 +213,8 @@ async function run() {
 			checkRelease();
 			executeCmd(`git commit -am '${PKG.version}'`);
 			executeCmd(`git tag -a ${PKG.version} -m '${PKG.version}'`);
-			executeCmd(`git push origin v${MAYOR_VERSION}`);
-			executeCmd(`git push origin '${PKG.version}'`);
+			executeCmd(`git push bryn v${MAYOR_VERSION}`);
+			executeCmd(`git push bryn '${PKG.version}'`);
 
 			logInfo('creating release in GitHub');
 

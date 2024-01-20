@@ -4,6 +4,10 @@
 
 - C++: Update libsrtp to v3.0-alpha.
 
+### 3.13.17
+
+- Add consumer payload type mapping.
+
 ### 3.13.16.4
 
 - Add consumer payload type mapping.

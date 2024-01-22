@@ -557,11 +557,13 @@ export function getConsumerRtpParameters({
 	remoteRtpCapabilities,
 	pipe,
 	enableRtx,
+	useProducerSsrc = false,
 }: {
 	consumableRtpParameters: RtpParameters;
 	remoteRtpCapabilities: RtpCapabilities;
 	pipe: boolean;
 	enableRtx: boolean;
+	useProducerSsrc?: boolean;
 }): RtpParameters {
 	const consumerParams: RtpParameters = {
 		codecs: [],
@@ -668,12 +670,23 @@ export function getConsumerRtpParameters({
 	}
 
 	if (!pipe) {
+		const producerSsrc = consumableRtpParameters.encodings?.[0].ssrc;
 		const consumerEncoding: RtpEncodingParameters = {
-			ssrc: utils.generateRandomNumber(),
+			ssrc:
+				useProducerSsrc && producerSsrc
+					? producerSsrc
+					: utils.generateRandomNumber(),
 		};
 
 		if (rtxSupported) {
-			consumerEncoding.rtx = { ssrc: consumerEncoding.ssrc! + 1 };
+			const producerRtxSsrc = consumableRtpParameters.encodings?.[0].rtx?.ssrc;
+
+			consumerEncoding.rtx = {
+				ssrc:
+					useProducerSsrc && producerRtxSsrc
+						? producerRtxSsrc
+						: consumerEncoding.ssrc! + 1,
+			};
 		}
 
 		// If any of the consumableRtpParameters.encodings has scalabilityMode,
@@ -726,10 +739,14 @@ export function getConsumerRtpParameters({
 		for (let i = 0; i < consumableEncodings.length; ++i) {
 			const encoding = consumableEncodings[i];
 
-			encoding.ssrc = baseSsrc + i;
+			if (!useProducerSsrc || !encoding.ssrc) {
+				encoding.ssrc = baseSsrc + i;
+			}
 
 			if (rtxSupported) {
-				encoding.rtx = { ssrc: baseRtxSsrc + i };
+				if (!useProducerSsrc || !encoding.rtx?.ssrc) {
+					encoding.rtx = { ssrc: baseRtxSsrc + i };
+				}
 			} else {
 				delete encoding.rtx;
 			}

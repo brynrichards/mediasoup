@@ -87,6 +87,19 @@ export type ConsumerOptions<ConsumerAppData extends AppData = AppData> = {
 	pipe?: boolean;
 
 	/**
+	 * Provides the ability to remap payload type.
+	 */
+	payloadTypeMapping?: {
+		payloadType: number;
+		mappedPayloadType: number;
+	}[];
+
+	/**
+	 * Should the consumer use the same ssrc as the producer? If false, a new random ssrc is generated.
+	 */
+	useProducerSsrc?: boolean;
+
+	/**
 	 * Custom application data.
 	 */
 	appData?: ConsumerAppData;

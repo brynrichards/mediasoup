@@ -1025,6 +1025,18 @@ namespace RTC
 		packet->SetSequenceNumber(seq);
 		packet->SetTimestamp(timestamp);
 
+		// Mangle the payload type.
+		{
+			auto it = this->payloadMapping.find(payloadType);
+
+			if (it != this->payloadMapping.end())
+			{
+				const uint8_t mappedPayloadType = it->second;
+
+				packet->SetPayloadType(mappedPayloadType);
+			}
+		}
+
 #ifdef MS_RTC_LOGGER_RTP
 		packet->logger.sendRtpTimestamp = timestamp;
 		packet->logger.sendSeqNumber    = seq;
@@ -1080,6 +1092,7 @@ namespace RTC
 		packet->SetSsrc(origSsrc);
 		packet->SetSequenceNumber(origSeq);
 		packet->SetTimestamp(origTimestamp);
+		packet->SetPayloadType(payloadType);
 
 		// Restore the original payload if needed.
 		packet->RestorePayload();
